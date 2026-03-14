@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnAI - Complete Interactive Prototype</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            color: #0a0a0a;
+            line-height: 1.6;
+        }
+
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            min-height: 100vh;
+            background: white;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            background: #1a1a1a;
+            color: white;
+            padding: 2rem 1.5rem;
+            border-right: 1px solid #333;
+            overflow-y: auto;
+        }
+
+        .logo {
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+            color: white;
+        }
+
+        .nav-section {
+            margin-bottom: 2rem;
+        }
+
+        .nav-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #888;
+            margin-bottom: 0.8rem;
+            display: block;
+        }
+
+        .nav-item {
+            padding: 0.8rem 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-left-color: #2563eb;
+        }
+
+        .nav-item.active {
+            background: rgba(37, 99, 235, 0.2);
+            border-left-color: #2563eb;
+            color: #2563eb;
+        }
+
+        /* Main Content */
+        .main-content {
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .screen {
+            display: none;
+            flex: 1;
+            padding: 2rem;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Home Screen */
+        .home-screen {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+        }
+
+        .home-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            letter-spacing: -1px;
+        }
+
+        .home-header p {
+            font-size: 1.2rem;
+            color: #555;
+            margin-bottom: 2rem;
+            max-width: 500px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #e5e5e5;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            border-color: #2563eb;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-card p {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* Chat Screen */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .chat-header {
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e5e5e5;
+            margin-bottom: 1rem;
+        }
+
+        .chat-header h2 {
+            font-size: 1.3rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .chat-status {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 1rem;
+            border-radius: 8px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background: #0a0a0a;
+            color: white;
+            margin-left: auto;
+        }
+
+        .message.ai {
+            align-self: flex-start;
+            background: #f5f5f5;
+            color: #0a0a0a;
+            border: 1px solid #e5e5e5;
+        }
+
+        .chat-input-area {
+            display: flex;
+            gap: 0.8rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e5e5;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 0.8rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            transition: border-color 0.3s;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #0a0a0a;
+            box-shadow: 0 0 0 3px rgba(10, 10, 10, 0.05);
+        }
+
+        .send-btn {
+            padding: 0.8rem 1.5rem;
+            background: #0a0a0a;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .send-btn:hover {
+            background: #333;
+            transform: translateY(-2px);
+        }
+
+        /* Visual Explanation Screen */
+        .visual-screen {
+            gap: 1.5rem;
+        }
+
+        .visualization-container {
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+        }
+
+        .visual-svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .explanation-box {
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .explanation-box h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #0a0a0a;
+        }
+
+        .explanation-text {
+            color: #555;
+            line-height: 1.7;
+            margin-bottom: 1rem;
+        }
+
+        .explanation-list {
+            margin-left: 1.5rem;
+            color: #555;
+        }
+
+        .explanation-list li {
+            margin-bottom: 0.8rem;
+        }
+
+        /* Interactive Lesson Screen */
+        .lesson-container {
+            gap: 1.5rem;
+        }
+
+        .progress-section {
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .progress-bar-container {
+            margin-bottom: 1rem;
+        }
+
+        .progress-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #0a0a0a;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e5e5e5;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2563eb 0%, #3b82f6 100%);
+            transition: width 0.3s ease;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: #f5f5f5;
+            border-radius: 6px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2563eb;
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .quiz-container {
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .quiz-question {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #0a0a0a;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .quiz-option {
+            padding: 1rem;
+            border: 2px solid #e5e5e5;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+            text-align: left;
+        }
+
+        .quiz-option:hover {
+            border-color: #0a0a0a;
+            background: #f5f5f5;
+        }
+
+        .quiz-option.selected {
+            background: #0a0a0a;
+            color: white;
+            border-color: #0a0a0a;
+        }
+
+        .quiz-option.correct {
+            background: #dcfce7;
+            border-color: #16a34a;
+            color: #15803d;
+        }
+
+        .quiz-option.incorrect {
+            background: #fee2e2;
+            border-color: #dc2626;
+            color: #b91c1c;
+        }
+
+        .feedback-message {
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .feedback-message.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .feedback-message.correct {
+            background: #dcfce7;
+            border: 1px solid #16a34a;
+            color: #15803d;
+        }
+
+        .feedback-message.incorrect {
+            background: #fee2e2;
+            border: 1px solid #dc2626;
+            color: #b91c1c;
+        }
+
+        /* Personalization Screen */
+        .settings-container {
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 2rem;
+            max-width: 600px;
+        }
+
+        .settings-group {
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .settings-group:last-child {
+            border-bottom: none;
+        }
+
+        .settings-group h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #0a0a0a;
+        }
+
+        .settings-option {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .settings-option input[type="radio"],
+        .settings-option input[type="checkbox"] {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+        }
+
+        .settings-option label {
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .slider-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .slider-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .slider-group input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .save-btn {
+            width: 100%;
+            padding: 1rem;
+            background: #0a0a0a;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .save-btn:hover {
+            background: #333;
+        }
+
+        /* Dashboard Screen */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-card {
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .dashboard-card h4 {
+            font-weight: 700;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        .learning-path {
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .learning-path h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .path-item {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #e5e5e5;
+            background: #f5f5f5;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .path-item.completed {
+            border-left-color: #16a34a;
+            background: #dcfce7;
+        }
+
+        .path-item.current {
+            border-left-color: #2563eb;
+            background: #eff6ff;
+        }
+
+        .path-item.upcoming {
+            border-left-color: #d1d5db;
+            background: #f9fafb;
+        }
+
+        .path-item-title {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .path-item-desc {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .path-status {
+            display: inline-block;
+            font-size: 0.75rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 3px;
+            margin-top: 0.5rem;
+            font-weight: 600;
+        }
+
+        .path-status.completed {
+            background: #16a34a;
+            color: white;
+        }
+
+        .path-status.current {
+            background: #2563eb;
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .chat-messages {
+                max-height: 400px;
+            }
+
+            .message {
+                max-width: 100%;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+        }
+
+        .header-section {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .header-section h2 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 0.3rem;
+        }
+
+        .header-section p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .demo-note {
+            background: #fef3c7;
+            border: 1px solid #fcd34d;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            color: #92400e;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-secondary {
+            background: #e5e5e5;
+            color: #0a0a0a;
+        }
+
+        .btn-secondary:hover {
+            background: #d1d1d1;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">LearnAI</div>
+
+            <div class="nav-section">
+                <span class="nav-label">Main</span>
+                <div class="nav-item active" onclick="showScreen('home')">🏠 Home</div>
+                <div class="nav-item" onclick="showScreen('chat')">💬 Ask AI Teacher</div>
+                <div class="nav-item" onclick="showScreen('visual')">📊 Visual Learning</div>
+            </div>
+
+            <div class="nav-section">
+                <span class="nav-label">Learning</span>
+                <div class="nav-item" onclick="showScreen('lesson')">📚 Interactive Lesson</div>
+                <div class="nav-item" onclick="showScreen('dashboard')">📈 My Progress</div>
+                <div class="nav-item" onclick="showScreen('personalization')">⚙️ Personalization</div>
+            </div>
+
+            <div class="nav-section">
+                <span class="nav-label">Feedback</span>
+                <div class="nav-item" onclick="showFeedback()">📋 Share Feedback</div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Home Screen -->
+            <div id="home" class="screen active">
+                <div class="home-screen">
+                    <div class="home-header">
+                        <h1>Welcome to LearnAI</h1>
+                        <p>Your personal AI teacher. Explore the features below.</p>
+                        <p style="font-size: 0.9rem; color: #888; margin-top: 1rem;">💡 Click on any feature to see it in action</p>
+                    </div>
+                    <div class="feature-grid">
+                        <div class="feature-card" onclick="showScreen('chat')">
+                            <div class="feature-icon">💬</div>
+                            <h3>Ask AI Teacher</h3>
+                            <p>Have a conversation with your personalized AI instructor</p>
+                        </div>
+                        <div class="feature-card" onclick="showScreen('visual')">
+                            <div class="feature-icon">📊</div>
+                            <h3>Visual Explanations</h3>
+                            <p>Complex topics explained with custom diagrams</p>
+                        </div>
+                        <div class="feature-card" onclick="showScreen('lesson')">
+                            <div class="feature-icon">📚</div>
+                            <h3>Interactive Lessons</h3>
+                            <p>Learn through questions and get instant feedback</p>
+                        </div>
+                        <div class="feature-card" onclick="showScreen('personalization')">
+                            <div class="feature-icon">⚙️</div>
+                            <h3>Personalization</h3>
+                            <p>Customize your learning experience to match your style</p>
+                        </div>
+                        <div class="feature-card" onclick="showScreen('dashboard')">
+                            <div class="feature-icon">📈</div>
+                            <h3>Progress Tracking</h3>
+                            <p>See your learning journey and personalized recommendations</p>
+                        </div>
+                        <div class="feature-card" onclick="showFeedback()">
+                            <div class="feature-icon">⭐</div>
+                            <h3>Give Feedback</h3>
+                            <p>Help us improve LearnAI with your thoughts</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Screen -->
+            <div id="chat" class="screen">
+                <div class="chat-container">
+                    <div class="chat-header">
+                        <h2>💬 Chat with AI Teacher</h2>
+                        <p class="chat-status">AI is online and ready to help</p>
+                    </div>
+
+                    <div class="demo-note">
+                        💡 <strong>Demo:</strong> This shows how you can ask the AI teacher anything. Try asking about a topic you want to learn!
+                    </div>
+
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="message ai">
+                            <strong>LearnAI:</strong> Hello! 👋 I'm your personal AI teacher. What would you like to learn about today?
+                        </div>
+                    </div>
+
+                    <div class="chat-input-area">
+                        <input type="text" class="chat-input" id="chatInput" placeholder="Ask me anything... (e.g., 'Explain photosynthesis')" onkeypress="handleChatKeypress(event)">
+                        <button class="send-btn" onclick="sendChatMessage()">Send</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visual Learning Screen -->
+            <div id="visual" class="screen">
+                <div class="header-section">
+                    <h2>📊 Visual Explanations</h2>
+                    <p>Complex topics explained with custom diagrams and animations</p>
+                </div>
+
+                <div class="demo-note">
+                    💡 <strong>Demo:</strong> This shows how AI generates custom visual explanations. Click a button to see different examples.
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="loadVisualization('photosynthesis')">🌱 Photosynthesis</button>
+                    <button class="btn btn-primary" onclick="loadVisualization('recursion')">🔄 Recursion</button>
+                    <button class="btn btn-primary" onclick="loadVisualization('pyramid')">📐 Pyramid Structure</button>
+                </div>
+
+                <div class="visualization-container">
+                    <svg id="visualization" class="visual-svg" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#2563eb;stop-opacity:0.2" />
+                                <stop offset="100%" style="stop-color:#2563eb;stop-opacity:0.05" />
+                            </linearGradient>
+                        </defs>
+                        <rect width="400" height="300" fill="url(#grad)" rx="8"/>
+                        <text x="200" y="150" text-anchor="middle" font-family="Inter" font-size="18" fill="#0a0a0a" font-weight="600">Select a visualization above</text>
+                    </svg>
+                </div>
+
+                <div class="explanation-box">
+                    <h3 id="visTitle">Topic Explanation</h3>
+                    <p class="explanation-text" id="visExplanation">
+                        Select a topic to see the AI-generated visual explanation and detailed breakdown.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Interactive Lesson Screen -->
+            <div id="lesson" class="screen">
+                <div class="header-section">
+                    <h2>📚 Interactive Lesson</h2>
+                    <p>Learn by answering questions and get personalized feedback</p>
+                </div>
+
+                <div class="demo-note">
+                    💡 <strong>Demo:</strong> Answer questions to see how the AI adapts and provides feedback based on your responses.
+                </div>
+
+                <div class="lesson-container">
+                    <div class="progress-section">
+                        <div class="progress-bar-container">
+                            <div class="progress-label">Lesson Progress</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="lessonProgress" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-value" id="correctCount">0</div>
+                                <div class="stat-label">Correct</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="totalCount">0</div>
+                                <div class="stat-label">Total</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="scorePercent">0%</div>
+                                <div class="stat-label">Score</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="quiz-container">
+                        <div class="feedback-message" id="feedbackMsg"></div>
+
+                        <div class="quiz-question" id="quizQuestion">
+                            Question will appear here
+                        </div>
+
+                        <div class="quiz-options" id="quizOptions">
+                            <!-- Options will be generated -->
+                        </div>
+
+                        <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()" style="display:none;">Next Question →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Personalization Screen -->
+            <div id="personalization" class="screen">
+                <div class="header-section">
+                    <h2>⚙️ Your Learning Preferences</h2>
+                    <p>Customize LearnAI to match how you learn best</p>
+                </div>
+
+                <div class="demo-note">
+                    💡 <strong>Demo:</strong> These settings personalize how the AI teaches you. Change options and click Save to see updates.
+                </div>
+
+                <div class="settings-container">
+                    <div class="settings-group">
+                        <h3>Learning Style</h3>
+                        <div class="settings-option">
+                            <input type="radio" id="visual" name="style" value="visual" checked onchange="updateSetting('style', 'visual')">
+                            <label for="visual">Visual (Diagrams, animations, illustrations)</label>
+                        </div>
+                        <div class="settings-option">
+                            <input type="radio" id="practical" name="style" value="practical" onchange="updateSetting('style', 'practical')">
+                            <label for="practical">Practical (Examples, real-world applications)</label>
+                        </div>
+                        <div class="settings-option">
+                            <input type="radio" id="analytical" name="style" value="analytical" onchange="updateSetting('style', 'analytical')">
+                            <label for="analytical">Analytical (Detailed explanations, step-by-step)</label>
+                        </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <h3>Difficulty Level</h3>
+                        <div class="settings-option">
+                            <input type="radio" id="beginner" name="level" value="beginner" checked onchange="updateSetting('level', 'beginner')">
+                            <label for="beginner">Beginner - New to this topic</label>
+                        </div>
+                        <div class="settings-option">
+                            <input type="radio" id="intermediate" name="level" value="intermediate" onchange="updateSetting('level', 'intermediate')">
+                            <label for="intermediate">Intermediate - Have some knowledge</label>
+                        </div>
+                        <div class="settings-option">
+                            <input type="radio" id="advanced" name="level" value="advanced" onchange="updateSetting('level', 'advanced')">
+                            <label for="advanced">Advanced - Want deep insights</label>
+                        </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <h3>Pace</h3>
+                        <div class="slider-group">
+                            <label>Learning Speed</label>
+                            <input type="range" min="1" max="5" value="3" id="paceSlider" onchange="updateSetting('pace', this.value)">
+                            <p style="font-size: 0.85rem; color: #888; margin-top: 0.5rem;">Slow ← → Fast</p>
+                        </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <h3>Topics of Interest</h3>
+                        <div class="settings-option">
+                            <input type="checkbox" id="math" onchange="updateSetting('topic', 'math')">
+                            <label for="math">Mathematics</label>
+                        </div>
+                        <div class="settings-option">
+                            <input type="checkbox" id="science" onchange="updateSetting('topic', 'science')">
+                            <label for="science">Science</label>
+                        </div>
+                        <div class="settings-option">
+                            <input type="checkbox" id="programming" onchange="updateSetting('topic', 'programming')">
+                            <label for="programming">Programming</label>
+                        </div>
+                        <div class="settings-option">
+                            <input type="checkbox" id="languages" onchange="updateSetting('topic', 'languages')">
+                            <label for="languages">Languages</label>
+                        </div>
+                    </div>
+
+                    <button class="save-btn" onclick="saveSettings()">✓ Save Preferences</button>
+                </div>
+            </div>
+
+            <!-- Dashboard Screen -->
+            <div id="dashboard" class="screen">
+                <div class="header-section">
+                    <h2>📈 Your Learning Dashboard</h2>
+                    <p>See your progress and personalized learning path</p>
+                </div>
+
+                <div class="demo-note">
+                    💡 <strong>Demo:</strong> This shows your learning statistics and personalized recommendations based on your progress.
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <h4>📊 Total Learning Time</h4>
+                        <div style="font-size: 2rem; font-weight: 700; color: #2563eb; margin-bottom: 0.5rem;">4.5 hrs</div>
+                        <p style="font-size: 0.9rem; color: #888;">+30 min from last week</p>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <h4>🎯 Topics Completed</h4>
+                        <div style="font-size: 2rem; font-weight: 700; color: #16a34a; margin-bottom: 0.5rem;">12</div>
+                        <p style="font-size: 0.9rem; color: #888;">Photosynthesis, Recursion...</p>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <h4>🏆 Current Streak</h4>
+                        <div style="font-size: 2rem; font-weight: 700; color: #f59e0b; margin-bottom: 0.5rem;">5 days</div>
+                        <p style="font-size: 0.9rem; color: #888;">Keep it up!</p>
+                    </div>
+                </div>
+
+                <div class="learning-path">
+                    <h3>📚 Your Personalized Learning Path</h3>
+
+                    <div class="path-item completed">
+                        <div class="path-item-title">✓ Photosynthesis</div>
+                        <div class="path-item-desc">Understanding plant energy conversion</div>
+                        <span class="path-status completed">Completed</span>
+                    </div>
+
+                    <div class="path-item completed">
+                        <div class="path-item-title">✓ Recursion in Programming</div>
+                        <div class="path-item-desc">Functions that call themselves</div>
+                        <span class="path-status completed">Completed</span>
+                    </div>
+
+                    <div class="path-item current">
+                        <div class="path-item-title">▶ Quadratic Equations</div>
+                        <div class="path-item-desc">Solving polynomial equations of degree 2</div>
+                        <span class="path-status current">In Progress</span>
+                    </div>
+
+                    <div class="path-item upcoming">
+                        <div class="path-item-title">⭕ Machine Learning Basics</div>
+                        <div class="path-item-desc">Introduction to AI and ML concepts</div>
+                        <span class="path-status upcoming">Up Next</span>
+                    </div>
+
+                    <div class="path-item upcoming">
+                        <div class="path-item-title">⭕ Advanced Data Structures</div>
+                        <div class="path-item-desc">Trees, graphs, and advanced algorithms</div>
+                        <span class="path-status upcoming">Upcoming</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data and state
+        let conversationHistory = [];
+        let currentQuestion = 0;
+        let correctAnswers = 0;
+        let totalAnswered = 0;
+        let userSettings = {
+            style: 'visual',
+            level: 'beginner',
+            pace: 3,
+            topics: []
+        };
+
+        const quizQuestions = [
+            {
+                question: "What is the primary input plants need for photosynthesis?",
+                options: [
+                    { text: "Sunlight, water, and CO₂", correct: true },
+                    { text: "Soil and nutrients only", correct: false },
+                    { text: "Fertilizer and oxygen", correct: false }
+                ],
+                explanation: "Photosynthesis requires sunlight (energy), water (from roots), and CO₂ (from air) to create glucose."
+            },
+            {
+                question: "What is the output of photosynthesis?",
+                options: [
+                    { text: "Glucose and oxygen", correct: true },
+                    { text: "Water and CO₂", correct: false },
+                    { text: "Chlorophyll and cellulose", correct: false }
+                ],
+                explanation: "Plants produce glucose (food for growth) and release oxygen as a byproduct, which we breathe!"
+            },
+            {
+                question: "Where does photosynthesis occur in the plant?",
+                options: [
+                    { text: "In the leaves", correct: true },
+                    { text: "In the roots", correct: false },
+                    { text: "In the stem", correct: false }
+                ],
+                explanation: "Photosynthesis happens in the green parts of plants, primarily in the leaves where chlorophyll is found."
+            },
+            {
+                question: "What gives plants their green color?",
+                options: [
+                    { text: "Chlorophyll", correct: true },
+                    { text: "Glucose", correct: false },
+                    { text: "Water molecules", correct: false }
+                ],
+                explanation: "Chlorophyll is the pigment that absorbs light energy and gives plants their green color."
+            }
+        ];
+
+        const aiResponses = {
+            "photosynthesis": "Great question! Photosynthesis is how plants convert sunlight into food. Plants take in sunlight, water, and CO₂, and produce glucose (energy) and oxygen. It's like a plant's version of eating!\n\nWould you like me to:\n1. Create a visual diagram of the process\n2. Explain the step-by-step process\n3. Start an interactive lesson\n4. Answer specific questions about it",
+            "recursion": "Recursion is when a function calls itself to solve a smaller version of the same problem. Imagine a Russian nesting doll - you keep opening dolls until you reach the smallest one. That's recursion!\n\nKey rule: Every recursive function needs a 'base case' (stopping point), or it loops forever.\n\nWould you like:\n1. A visual example\n2. Code examples\n3. Practice problems\n4. Real-world use cases",
+            "math": "I'd love to help with math! Which topic interests you?\n- Algebra (equations, polynomials)\n- Geometry (shapes, proofs)\n- Calculus (derivatives, integrals)\n- Trigonometry (angles, ratios)\n- Statistics (data analysis)\n\nTell me which one and your level!",
+            "default": "That's an interesting question! I can help you understand this better.\n\nWould you like me to:\n1. Create a visual explanation\n2. Give step-by-step breakdown\n3. Provide real-world examples\n4. Start an interactive lesson\n\nLet me know which helps most!"
+        };
+
+        // Navigation
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            event.target.closest('.nav-item')?.classList.add('active');
+
+            if (screenId === 'lesson' && totalAnswered === 0) {
+                loadQuestion();
+            }
+        }
+
+        // Chat functions
+        function handleChatKeypress(event) {
+            if (event.key === 'Enter') {
+                sendChatMessage();
+            }
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+
+            // Add user message
+            addChatMessage(message, 'user');
+            input.value = '';
+
+            // Simulate AI response
+            setTimeout(() => {
+                const response = generateAIResponse(message);
+                addChatMessage(response, 'ai');
+            }, 800);
+        }
+
+        function addChatMessage(text, sender) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageEl = document.createElement('div');
+            messageEl.className = `message ${sender}`;
+            
+            if (sender === 'user') {
+                messageEl.textContent = text;
+            } else {
+                messageEl.innerHTML = `<strong>LearnAI:</strong> ${text.replace(/\n/g, '<br>')}`;
+            }
+
+            messagesDiv.appendChild(messageEl);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function generateAIResponse(userMessage) {
+            const msg = userMessage.toLowerCase();
+            
+            if (msg.includes('photosynthesis')) return aiResponses.photosynthesis;
+            if (msg.includes('recursion')) return aiResponses.recursion;
+            if (msg.includes('math')) return aiResponses.math;
+            
+            return aiResponses.default;
+        }
+
+        // Visual Learning
+        function loadVisualization(type) {
+            const visualizations = {
+                photosynthesis: {
+                    title: "🌱 Photosynthesis Process",
+                    svg: `
+                        <defs>
+                            <linearGradient id="sunGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <circle cx="350" cy="30" r="25" fill="url(#sunGrad)"/>
+                        <text x="350" y="35" text-anchor="middle" font-size="16" fill="white" font-weight="700">☀️</text>
+                        <path d="M 350 55 L 350 100" stroke="#f59e0b" stroke-width="2"/>
+                        
+                        <rect x="100" y="120" width="200" height="120" fill="#dcfce7" stroke="#16a34a" stroke-width="2" rx="10"/>
+                        <ellipse cx="200" cy="170" rx="60" ry="40" fill="#86efac" opacity="0.7"/>
+                        <text x="200" y="175" text-anchor="middle" font-size="14" fill="#0a0a0a" font-weight="700">Leaf</text>
+                        
+                        <g transform="translate(50, 200)">
+                            <text x="0" y="0" font-size="12" font-weight="600" fill="#0a0a0a">Inputs:</text>
+                            <text x="0" y="20" font-size="11" fill="#555">💧 Water</text>
+                            <text x="0" y="35" font-size="11" fill="#555">💨 CO₂</text>
+                            <text x="0" y="50" font-size="11" fill="#555">☀️ Light</text>
+                        </g>
+                        
+                        <g transform="translate(300, 200)">
+                            <text x="0" y="0" font-size="12" font-weight="600" fill="#0a0a0a">Outputs:</text>
+                            <text x="0" y="20" font-size="11" fill="#555">🍭 Glucose</text>
+                            <text x="0" y="35" font-size="11" fill="#555">💨 Oxygen</text>
+                        </g>
+                        
+                        <path d="M 300 170 Q 330 160 340 200" stroke="#86efac" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+                        <path d="M 300 170 Q 330 180 340 220" stroke="#a78bfa" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+                        
+                        <defs>
+                            <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                                <path d="M0,0 L0,6 L9,3 z" fill="#666"/>
+                            </marker>
+                        </defs>
+                    `,
+                    explanation: "Photosynthesis is the process by which plants convert light energy into chemical energy stored in glucose. The key inputs are sunlight (energy source), water (from roots), and CO₂ (from air). The outputs are glucose (food for the plant) and oxygen (released to atmosphere)."
+                },
+                recursion: {
+                    title: "🔄 Recursion Pattern",
+                    svg: `
+                        <rect x="50" y="20" width="100" height="50" fill="#dbeafe" stroke="#2563eb" stroke-width="2" rx="5"/>
+                        <text x="100" y="50" text-anchor="middle" font-size="12" font-weight="700" fill="#0a0a0a">Function(5)</text>
+                        
+                        <path d="M 100 70 L 100 90" stroke="#2563eb" stroke-width="2"/>
+                        
+                        <rect x="50" y="90" width="100" height="50" fill="#c7d2fe" stroke="#2563eb" stroke-width="2" rx="5"/>
+                        <text x="100" y="120" text-anchor="middle" font-size="12" font-weight="700" fill="#0a0a0a">Function(4)</text>
+                        
+                        <path d="M 100 140 L 100 160" stroke="#2563eb" stroke-width="2"/>
+                        
+                        <rect x="50" y="160" width="100" height="50" fill="#a5d8ff" stroke="#2563eb" stroke-width="2" rx="5"/>
+                        <text x="100" y="190" text-anchor="middle" font-size="12" font-weight="700" fill="#0a0a0a">Function(3)</text>
+                        
+                        <path d="M 100 210 L 100 230" stroke="#2563eb" stroke-width="2"/>
+                        
+                        <rect x="50" y="230" width="100" height="50" fill="#7dd3fc" stroke="#2563eb" stroke-width="2" rx="5"/>
+                        <text x="100" y="260" text-anchor="middle" font-size="12" font-weight="700" fill="#0a0a0a">Base Case (1)</text>
+                        
+                        <text x="200" y="60" font-size="11" fill="#555">Calls itself</text>
+                        <text x="200" y="130" font-size="11" fill="#555">with n-1</text>
+                        <text x="200" y="200" font-size="11" fill="#555">repeat...</text>
+                    `,
+                    explanation: "Recursion is when a function calls itself with a smaller version of the problem. Each call reduces the problem size until it reaches the 'base case' (the stopping condition). Then the results bubble back up. This is like Russian dolls - open one to find a smaller one, keep going until you find the smallest."
+                },
+                pyramid: {
+                    title: "📐 Pyramid Structure",
+                    svg: `
+                        <polygon points="200,30 50,200 350,200" fill="#fef08a" stroke="#fbbf24" stroke-width="2"/>
+                        
+                        <line x1="50" y1="200" x2="350" y2="200" stroke="#fbbf24" stroke-width="2"/>
+                        <line x1="200" y1="30" x2="200" y2="200" stroke="#fbbf24" stroke-width="1" stroke-dasharray="5,5"/>
+                        
+                        <circle cx="200" cy="85" r="30" fill="#fed7aa" stroke="#fb923c" stroke-width="2" opacity="0.7"/>
+                        <text x="200" y="90" text-anchor="middle" font-size="12" font-weight="700" fill="#0a0a0a">Apex</text>
+                        
+                        <rect x="140" y="130" width="120" height="40" fill="#fecaca" stroke="#f87171" stroke-width="2" opacity="0.7"/>
+                        <text x="200" y="155" text-anchor="middle" font-size="11" font-weight="700" fill="#0a0a0a">Middle</text>
+                        
+                        <text x="80" y="220" font-size="11" font-weight="700" fill="#0a0a0a">Base</text>
+                        <text x="320" y="220" font-size="11" font-weight="700" fill="#0a0a0a">Base</text>
+                        
+                        <text x="200" y="260" text-anchor="middle" font-size="13" fill="#555" font-weight="600">h = height | V = (1/3)πr²h</text>
+                    `,
+                    explanation: "A pyramid is a 3D geometric shape with a polygonal base and triangular faces. The key properties are the apex (top point), the height (vertical distance), and the base area. Volume is calculated as one-third of the base area times the height."
+                }
+            };
+
+            const viz = visualizations[type];
+            if (viz) {
+                document.getElementById('visTitle').textContent = viz.title;
+                document.getElementById('visExplanation').textContent = viz.explanation;
+                document.getElementById('visualization').innerHTML = viz.svg;
+            }
+        }
+
+        // Quiz functions
+        function loadQuestion() {
+            if (currentQuestion < quizQuestions.length) {
+                const q = quizQuestions[currentQuestion];
+                document.getElementById('quizQuestion').textContent = q.question;
+                
+                const optionsDiv = document.getElementById('quizOptions');
+                optionsDiv.innerHTML = '';
+                
+                q.options.forEach((option, index) => {
+                    const btn = document.createElement('div');
+                    btn.className = 'quiz-option';
+                    btn.textContent = option.text;
+                    btn.onclick = () => selectAnswer(index, option.correct, q.explanation);
+                    optionsDiv.appendChild(btn);
+                });
+
+                document.getElementById('nextBtn').style.display = 'none';
+                document.getElementById('feedbackMsg').classList.remove('show', 'correct', 'incorrect');
+            } else {
+                showLessonComplete();
+            }
+        }
+
+        function selectAnswer(index, isCorrect, explanation) {
+            const options = document.querySelectorAll('.quiz-option');
+            options.forEach(opt => opt.style.pointerEvents = 'none');
+
+            totalAnswered++;
+            if (isCorrect) correctAnswers++;
+
+            options[index].classList.add(isCorrect ? 'correct' : 'incorrect');
+
+            const feedback = document.getElementById('feedbackMsg');
+            feedback.textContent = (isCorrect ? '✓ Correct! ' : '✗ Incorrect. ') + explanation;
+            feedback.className = `feedback-message show ${isCorrect ? 'correct' : 'incorrect'}`;
+
+            updateStats();
+
+            setTimeout(() => {
+                document.getElementById('nextBtn').style.display = 'block';
+            }, 500);
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            document.getElementById('nextBtn').style.display = 'none';
+            loadQuestion();
+        }
+
+        function updateStats() {
+            document.getElementById('correctCount').textContent = correctAnswers;
+            document.getElementById('totalCount').textContent = totalAnswered;
+            const percent = totalAnswered > 0 ? Math.round((correctAnswers / totalAnswered) * 100) : 0;
+            document.getElementById('scorePercent').textContent = percent + '%';
+            document.getElementById('lessonProgress').style.width = ((currentQuestion + 1) / quizQuestions.length) * 100 + '%';
+        }
+
+        function showLessonComplete() {
+            const optionsDiv = document.getElementById('quizOptions');
+            optionsDiv.innerHTML = '<div style="text-align: center; padding: 2rem;"><h3>🎉 Lesson Complete!</h3><p>You scored ' + Math.round((correctAnswers / totalAnswered) * 100) + '%</p></div>';
+            document.getElementById('quizQuestion').textContent = 'Lesson Summary';
+            document.getElementById('nextBtn').style.display = 'none';
+        }
+
+        // Settings
+        function updateSetting(type, value) {
+            if (type === 'pace') {
+                userSettings.pace = parseInt(value);
+            }
+        }
+
+        function saveSettings() {
+            // Get learning style
+            const style = document.querySelector('input[name="style"]:checked')?.value || 'visual';
+            const level = document.querySelector('input[name="level"]:checked')?.value || 'beginner';
+            const topics = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.id);
+
+            userSettings = { style, level, pace: userSettings.pace, topics };
+
+            alert(`✓ Settings saved!\n\nYour preferences:\n- Style: ${style}\n- Level: ${level}\n- Pace: ${userSettings.pace}/5\n- Topics: ${topics.length > 0 ? topics.join(', ') : 'None selected'}`);
+        }
+
+        // Feedback
+        function showFeedback() {
+            const feedbackOptions = [
+                "👍 Great! This is exactly what I needed.",
+                "👌 Good prototype, but needs improvements",
+                "🤔 Interesting concept, but I have questions",
+                "👎 Not what I expected",
+                "💡 I have feature suggestions"
+            ];
+
+            let message = "What do you think of LearnAI?\n\n";
+            feedbackOptions.forEach((opt, idx) => {
+                message += (idx + 1) + ". " + opt + "\n";
+            });
+            message += "\nType the number (1-5):";
+
+            const choice = prompt(message);
+            if (choice && choice >= 1 && choice <= 5) {
+                const feedbackText = feedbackOptions[parseInt(choice) - 1];
+                alert(`Thank you for your feedback!\n\n"${feedbackText}"\n\nThis helps us improve LearnAI! 💙`);
+                console.log('Feedback:', feedbackText);
+            }
+        }
+
+        // Initialize
+        window.onload = () => {
+            loadVisualization('photosynthesis');
+        };
+    </script>
+</body>
+</html>
