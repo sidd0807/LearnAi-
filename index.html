@@ -462,6 +462,135 @@
             color: #b91c1c;
         }
 
+        /* Google Form Modal Styles */
+        .form-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .form-modal.show {
+            display: flex;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .form-header {
+            padding: 2rem;
+            border-bottom: 1px solid #e5e5e5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 100;
+        }
+
+        .form-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .form-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #888;
+            transition: color 0.3s;
+        }
+
+        .form-close:hover {
+            color: #0a0a0a;
+        }
+
+        .form-content {
+            padding: 2rem;
+        }
+
+        .form-iframe {
+            width: 100%;
+            border: none;
+            min-height: 800px;
+        }
+
+        .quick-feedback {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .feedback-option {
+            padding: 1rem;
+            border: 2px solid #e5e5e5;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            background: white;
+            font-size: 0.9rem;
+        }
+
+        .feedback-option:hover {
+            border-color: #2563eb;
+            background: #f0f4ff;
+            transform: translateY(-2px);
+        }
+
+        .feedback-option.selected {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+
+        .form-divider {
+            text-align: center;
+            color: #888;
+            margin: 1.5rem 0;
+            font-size: 0.9rem;
+            position: relative;
+        }
+
+        .form-divider::before,
+        .form-divider::after {
+            content: '';
+            display: inline-block;
+            width: 35%;
+            height: 1px;
+            background: #e5e5e5;
+            vertical-align: middle;
+        }
+
+        .form-divider::before {
+            margin-right: 0.8rem;
+        }
+
+        .form-divider::after {
+            margin-left: 0.8rem;
+        }
+
         /* Personalization Screen */
         .settings-container {
             background: white;
@@ -1054,6 +1183,46 @@
         </div>
     </div>
 
+    <!-- Google Form Modal -->
+    <div class="form-modal" id="googleFormModal">
+        <div class="form-container">
+            <div class="form-header">
+                <h2>📋 LearnAI Feedback Form</h2>
+                <button class="form-close" onclick="closeFormModal()">✕</button>
+            </div>
+            <div class="form-content">
+                <p style="margin-bottom: 1.5rem; color: #555;">Help us improve LearnAI! Your feedback is valuable. Please share your honest experience:</p>
+                
+                <div class="form-divider">Quick Rating</div>
+                <div class="quick-feedback">
+                    <button class="feedback-option" onclick="selectFeedback(this, '👍 Great Experience')">👍 Great</button>
+                    <button class="feedback-option" onclick="selectFeedback(this, '👌 Good Concept')">👌 Good</button>
+                    <button class="feedback-option" onclick="selectFeedback(this, '🤔 Interesting')">🤔 Interesting</button>
+                    <button class="feedback-option" onclick="selectFeedback(this, '💡 Has Issues')">💡 Issues</button>
+                </div>
+
+                <div class="form-divider">Detailed Survey</div>
+                
+                <!-- Google Form Embed -->
+                <iframe 
+                    class="form-iframe"
+                    src="https://forms.gle/XHwUeFMhG4hvFUB26" 
+                    width="640" 
+                    height="850" 
+                    frameborder="0" 
+                    marginheight="0" 
+                    marginwidth="0">
+                    Loading form...
+                </iframe>
+                
+                <div style="text-align: center; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #e5e5e5;">
+                    <p style="color: #888; font-size: 0.9rem; margin-bottom: 1rem;">Thank you for helping us improve LearnAI! 💙</p>
+                    <button onclick="closeFormModal()" style="padding: 0.8rem 2rem; background: #2563eb; color: white; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; transition: all 0.3s;">Close Form</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Data and state
         let conversationHistory = [];
@@ -1359,29 +1528,40 @@
 
             alert(`✓ Settings saved!\n\nYour preferences:\n- Style: ${style}\n- Level: ${level}\n- Pace: ${userSettings.pace}/5\n- Topics: ${topics.length > 0 ? topics.join(', ') : 'None selected'}`);
         }
-        
-        // Feedback
-        function showFeedback() {
-            const feedbackOptions = [
-                "👍 Great! This is exactly what I needed.",
-                "👌 Good prototype, but needs improvements",
-                "🤔 Interesting concept, but I have questions",
-                "👎 Not what I expected",
-                "💡 I have feature suggestions"
-            ];
 
-            let message = "What do you think of LearnAI?\n\n";
-            feedbackOptions.forEach((opt, idx) => {
-                message += (idx + 1) + ". " + opt + "\n";
-            });
-            message += "\nType the number (1-5):";
-            
-            const choice = prompt(message);
-            if (choice && choice >= 1 && choice <= 5) {
-                const feedbackText = feedbackOptions[parseInt(choice) - 1];
-                alert(`Thank you for your feedback!\n\n"${feedbackText}"\n\nThis helps us improve LearnAI! 💙`);
-                console.log('Feedback:', feedbackText);
+        // Feedback with Google Form
+        function showFeedback() {
+            const formModal = document.getElementById('googleFormModal');
+            if (formModal) {
+                formModal.classList.add('show');
             }
+        }
+
+        function closeFormModal() {
+            const formModal = document.getElementById('googleFormModal');
+            if (formModal) {
+                formModal.classList.remove('show');
+            }
+        }
+
+        function selectFeedback(button, feedbackText) {
+            // Remove previous selection
+            document.querySelectorAll('.feedback-option').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            // Add selection to clicked button
+            button.classList.add('selected');
+            
+            // Log feedback
+            console.log('Quick Feedback:', feedbackText);
+            
+            // Show confirmation
+            const originalText = button.textContent;
+            button.textContent = '✓ Selected';
+            setTimeout(() => {
+                button.textContent = originalText;
+            }, 2000);
         }
 
         // Initialize
